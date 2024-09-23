@@ -1,0 +1,242 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+const int MAX_TASKS = 20;  // Maximum number of tasks
+string tasks[MAX_TASKS];   
+int numTasks = 1;          
+
+void printMenu() {
+    cout << "\nMenu:\n";
+    cout << "1. Add a task X at a particular position p in the task list\n";
+    cout << "2. Delete the task Y at position q from the task list\n";
+    cout << "3. Print the number of tasks in the task list\n";
+    cout << "4. Print all tasks in the task list in the order of position\n";
+    cout << "5. Print all tasks in the task list in reverse order of position\n";
+    cout << "6. Quit\n";
+    cout << "Choice → ";
+}
+////////////////////////////////
+//checks if a character is a digit
+///////////////////////////////
+bool isDigit(char c) 
+{
+    return c >= '0' && c <= '9';
+}
+////////////////////////////////////////////////
+// checks if a character is alphabetic
+////////////////////////////////////////////////
+bool isAlpha(char c)
+{
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+////////////////////////////////////////////
+//checks if a character is alphanumeric
+//////////////////////////////////////////
+bool isAlnum(char c) 
+{
+    return isAlpha(c) || isDigit(c);
+}
+//////////////////////////////////////////////
+// Validate if the task name is alphanumeric
+//////////////////////////////////////////////
+bool isValidTaskName(const string &taskName) 
+{
+    if (taskName.empty() || !isAlpha(taskName[0])) 
+    {
+        return false;
+    }
+    bool hasDigit = false;
+    
+    for (int index = 0; index < taskName.length(); ++index)
+        {
+        char c = taskName[index];
+        if (!isAlnum(c))
+        {
+            return false;
+        }
+        if (isDigit(c)) 
+        {
+            hasDigit = true;
+        }
+    }
+    return hasDigit;
+}
+//////////////////////////////////////////////////
+// Function to convert a string to an integer
+/////////////////////////////////////////////////
+int stringToInt(const string& str)
+{
+    int result = 0;
+    for (int index = 0; index < str.length(); ++index)
+        {
+        char c = str[index];
+        if (isDigit(c)) 
+        {
+            result = result + (c - '0');
+        } else
+        {
+            cout << "Invalid character in position string.\n";
+            return -1; 
+        }
+    }
+    return result;
+}
+////////////////////////////////////////////
+// Function to get task name and position
+////////////////////////////////////////////
+void addTask() 
+{
+    string input;
+    cout << "Enter task name and its position (position is optional) -> ";
+    getline(cin, input);
+
+    string taskName;
+    int position = numTasks; 
+    bool foundSpace = false;
+    /////////////////////
+    // Extract task name 
+    ////////////////////////
+    for (int index = 0; index < input.length(); ++index)
+        {
+        if (input[index] == ' ') 
+        {
+            foundSpace = true;
+            break;
+        } else 
+        {
+            taskName += input[index];
+        }
+    }
+
+  
+    if (foundSpace) 
+    {
+        string positionStr;
+        bool positionFound = false;
+
+       
+        for (int index = taskName.length() + 1; index < input.length(); ++index) 
+        {
+            positionStr += input[index];
+            positionFound = true;
+        }
+        //////////////////////////////////////////////////////////////////
+        // Convert position string to integer if position part was found
+        ////////////////////////////////////////////////////////////////
+        if (positionFound) 
+        {
+            position = stringToInt(positionStr);
+            if (position == -1) 
+            {
+                return; 
+            }
+        } else {
+            position = numTasks; 
+        }
+    } else {
+        position = numTasks; 
+    }
+
+    if (!isValidTaskName(taskName)) 
+    {
+        cout << "Invalid task name. Task must be alphanumeric, start with a letter, and contain at least one digit.\n";
+        return;
+    }
+
+    if (position < 0 || position > numTasks || numTasks >= MAX_TASKS) 
+    {
+        cout << "Invalid position or task list is full.\n";
+        return;
+    }
+
+    
+    for (int index = numTasks; index > position; --index) 
+    {
+        tasks[index] = tasks[index - 1];
+    }
+    tasks[position] = taskName;
+    numTasks++;
+    cout << "Task added.\n";
+}
+
+void deleteTask() 
+{
+    int position;
+
+    cout << "Enter its position (default is 0) -> ";
+    cin >> position;
+    cin.ignore(); 
+
+    if (position < 0 || position >= numTasks) 
+    {
+        cout << "Invalid position.\n";
+        return;
+    }
+
+    cout << "Deleted task: " << tasks[position] << endl;
+
+    
+    for (int index = position; index < numTasks - 1; ++index)
+        {
+        tasks[index] = tasks[index + 1];
+    }
+    numTasks--;
+}
+
+void printNumberOfTasks() 
+{
+    cout << "Number of tasks: " << numTasks -1 << endl;
+}
+
+void printTasks() 
+{
+    for (int index = 1; index < numTasks; ++index) {
+        cout << index  << ". " << tasks[index] << endl;
+    }
+}
+
+void printTasksReverse()
+{
+    for (int index = numTasks - 1; index >= 1; --index) {
+        cout << index  << ". " << tasks[index] << endl;
+    }
+}
+
+int main() 
+{
+    int choice;
+
+    do {
+        printMenu();
+        cin >> choice;
+        cin.ignore(); 
+
+        switch (choice) {
+            case 1:
+                addTask();
+                break;
+            case 2:
+                deleteTask();
+                break;
+            case 3:
+                printNumberOfTasks();
+                break;
+            case 4:
+                printTasks();
+                break;
+            case 5:
+                printTasksReverse();
+                break;
+            case 6:
+                cout << "Quitting program.\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    } while (choice != 6);
+
+    return 0;
+}
